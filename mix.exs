@@ -1,9 +1,9 @@
-defmodule TeslaApi.MixProject do
+defmodule ExTesla.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :tesla_api,
+      app: :ex_tesla,
       version: "0.0.1",
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
@@ -22,7 +22,6 @@ defmodule TeslaApi.MixProject do
   def application do
     [
       extra_applications: [:logger],
-      mod: {TeslaApi.Application, []}
     ]
   end
 
@@ -37,7 +36,7 @@ defmodule TeslaApi.MixProject do
       files: ["lib", "mix.exs", "README*", "LICENSE*"],
       maintainers: ["Brian May"],
       licenses: ["GPL3"],
-      links: %{"GitHub" => "https://github.com/brianmay/tesla_api"}
+      links: %{"GitHub" => "https://github.com/brianmay/ex_tesla"}
     ]
   end
 

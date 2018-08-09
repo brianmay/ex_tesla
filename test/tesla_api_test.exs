@@ -1,8 +1,8 @@
-defmodule TeslaApiTest do
+defmodule ExTeslaTest do
   use ExUnit.Case
-  doctest TeslaApi
+  doctest ExTesla
 
   test "greets the world" do
-    assert TeslaApi.hello() == :world
+    assert ExTesla.hello() == :world
   end
 end

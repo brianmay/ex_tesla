@@ -1,16 +1,16 @@
-defmodule TeslaApi do
+defmodule ExTesla do
   @moduledoc """
   Unofficial thin elixir wrapper for Tesla API. As per unofficial
   [documentation](https://timdorr.docs.apiary.io/).
   """
-  alias TeslaApi.Api
+  alias ExTesla.Api
 
   @doc """
   Hello world.
 
   ## Examples
 
-      iex> TeslaApi.hello
+      iex> ExTesla.hello
       :world
 
   """

@@ -1,4 +1,4 @@
-defmodule TeslaApi.Api do
+defmodule ExTesla.Api do
   @moduledoc """
   This is the HTTP API for Tesla API. It contains the low level HTTP functions.
   """
@@ -14,8 +14,8 @@ defmodule TeslaApi.Api do
       grant_type: "password",
       client_id: oauth["v1"]["id"],
       client_secret: oauth["v1"]["secret"],
-      email: Application.get_env(:tesla_api, :email),
-      password: Application.get_env(:tesla_api, :password)
+      email: Application.get_env(:ex_tesla, :email),
+      password: Application.get_env(:ex_tesla, :password)
     }
 
     result = post(url, data)
@@ -31,7 +31,7 @@ defmodule TeslaApi.Api do
   Get a token required for Tesla's API.
   """
   def get_token do
-    with {:ok, oauth} <- TeslaApi.Oauth.get_oauth(),
+    with {:ok, oauth} <- ExTesla.Oauth.get_oauth(),
          {:ok, result} <- login_with_oauth(oauth) do
       {:ok, result}
     else

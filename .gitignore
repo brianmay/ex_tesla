@@ -20,7 +20,7 @@ erl_crash.dump
 *.ez
 
 # Ignore package tarball (built via "mix hex.build").
-tesla_api-*.tar
+ex_tesla-*.tar
 
 # Ignore secrets file
 /config/secrets.exs
