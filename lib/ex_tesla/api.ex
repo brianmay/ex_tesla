@@ -43,6 +43,8 @@ defmodule ExTesla.Api do
   @doc """
   Check token is still valid and renew if required.
   """
+  def check_token(nil), do: get_token()
+
   def check_token(token) do
     now = :os.system_time(:seconds)
     expires = token["created_at"] + token["expires_in"] - 86400
