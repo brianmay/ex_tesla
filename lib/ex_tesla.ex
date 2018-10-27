@@ -5,17 +5,17 @@ defmodule ExTesla do
   """
   alias ExTesla.Api
 
+
   @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> ExTesla.hello
-      :world
-
+  Convert miles to km.
   """
-  def hello do
-    :world
+  def convert_miles_to_km(nil), do: nil
+
+  def convert_miles_to_km(km) do
+    km
+    |> Decimal.new()
+    |> Decimal.mult(Decimal.new(1.60934))
+    |> Decimal.round(1)
   end
 
   @doc """
