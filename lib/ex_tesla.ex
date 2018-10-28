@@ -39,6 +39,11 @@ defmodule ExTesla do
   def list_all_vehicles(client), do: Api.list_all_vehicles(client)
 
   @doc """
+  Get all data for a vehicle.
+  """
+  def get_vehicle_data(client, vehicle), do: Api.get_vehicle_data(client, vehicle)
+
+  @doc """
   Get the vehicle state for a vehicle.
   """
   def get_vehicle_state(client, vehicle), do: Api.get_vehicle_state(client, vehicle)

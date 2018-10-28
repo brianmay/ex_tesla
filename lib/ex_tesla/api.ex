@@ -85,6 +85,15 @@ defmodule ExTesla.Api do
   end
 
   @doc """
+  Get all data for a vehicle.
+  """
+  def get_vehicle_data(%Tesla.Client{} = client, vehicle) do
+    vehicle_id = vehicle["id"]
+    url = "/api/1/vehicles/#{vehicle_id}/data"
+    get(client, url) |> process_response
+  end
+
+  @doc """
   Get the vehicle state for a vehicle.
   """
   def get_vehicle_state(%Tesla.Client{} = client, vehicle) do
