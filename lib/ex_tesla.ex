@@ -12,10 +12,7 @@ defmodule ExTesla do
   def convert_miles_to_km(nil), do: nil
 
   def convert_miles_to_km(km) do
-    km
-    |> Decimal.new()
-    |> Decimal.mult(Decimal.new(1.60934))
-    |> Decimal.round(1)
+    km * 1.60934
   end
 
   @doc """
