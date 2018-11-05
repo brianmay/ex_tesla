@@ -3,7 +3,12 @@ defmodule ExTesla.Api do
   use Tesla
 
   plug(Tesla.Middleware.BaseUrl, "https://owner-api.teslamotors.com/")
-  plug(Tesla.Middleware.Headers, [{"User-Agent", "Mozilla/5.0 (Linux; Android 9.0.0; VS985 4G Build/LRX21Y; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/58.0.3029.83 Mobile Safari/537.36"}])
+
+  plug(Tesla.Middleware.Headers, [
+    {"User-Agent",
+     "Mozilla/5.0 (Linux; Android 9.0.0; VS985 4G Build/LRX21Y; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/58.0.3029.83 Mobile Safari/537.36"}
+  ])
+
   plug(Tesla.Middleware.JSON)
 
   defp login_with_oauth(oauth) do
