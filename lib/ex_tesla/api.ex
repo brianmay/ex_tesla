@@ -22,7 +22,7 @@ defmodule ExTesla.Api do
     case result do
       {:ok, %{status: 200, body: body}} -> {:ok, body}
       {:ok, result} -> {:error, "Got status #{result.status}"}
-      err -> err
+      {:error, msg} -> {:error, msg}
     end
   end
 
@@ -34,7 +34,7 @@ defmodule ExTesla.Api do
          {:ok, result} <- login_with_oauth(oauth) do
       {:ok, result}
     else
-      err -> err
+      {:error, msg} -> {:error, msg}
     end
   end
 
