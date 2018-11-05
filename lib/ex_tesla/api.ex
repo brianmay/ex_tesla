@@ -60,7 +60,7 @@ defmodule ExTesla.Api do
   Get a HTTP client for the token.
   """
   def client(token) do
-    Tesla.build_client([
+    Tesla.client([
       {Tesla.Middleware.Headers, [{"authorization", "Bearer " <> token["access_token"]}]}
     ])
   end
