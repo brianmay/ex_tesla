@@ -1,7 +1,5 @@
 defmodule ExTesla.Api do
-  @moduledoc """
-  This is the HTTP API for Tesla API. It contains the low level HTTP functions.
-  """
+  @moduledoc false
   use Tesla
 
   plug(Tesla.Middleware.BaseUrl, "https://owner-api.teslamotors.com/")

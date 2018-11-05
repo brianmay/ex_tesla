@@ -1,7 +1,5 @@
 defmodule ExTesla.Oauth do
-  @moduledoc """
-  This contains functionality to retrieve parameters required for Tesla's API.
-  """
+  @moduledoc false
   use Tesla
 
   @doc """
