@@ -53,4 +53,4 @@ client = ExTesla.client(token)
 
 ## Disclaimers
 
-This API is should not be considered final and is subject to change.
+This API should not be considered final and is subject to change.
