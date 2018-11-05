@@ -43,7 +43,7 @@ defmodule ExTesla.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:tesla, "~> 1.1.0"},
+      {:tesla, "~> 1.2.0"},
       {:jason, ">= 1.0.0"},
       {:ex_doc, "~> 0.19.0", only: :dev, runtime: false},
     ]
