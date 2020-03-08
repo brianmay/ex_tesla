@@ -23,7 +23,7 @@ be found at [https://hexdocs.pm/ex_tesla](https://hexdocs.pm/ex_tesla).
 ## Sample Usage
 
 ```elixir
-{:ok, token} = ExTesla.get_token
+{:ok, token} = ExTesla.get_token(email, password)
 client = ExTesla.client(token)
 {:ok, result} = ExTesla.list_all_vehicles(client)
 Enum.each(result, fn vehicle ->
