@@ -2,6 +2,19 @@ defmodule ExTesla.Api do
   @moduledoc false
   use Tesla
 
+  defmodule Token do
+    @type t :: %__MODULE__{
+            access_token: String.t(),
+            token_type: String.t(),
+            expires_in: integer,
+            refresh_token: String.t(),
+            created_at: integer
+          }
+    @enforce_keys [:access_token, :token_type, :expires_in, :refresh_token, :created_at]
+    @derive Jason.Encoder
+    defstruct [:access_token, :token_type, :expires_in, :refresh_token, :created_at]
+  end
+
   plug(Tesla.Middleware.BaseUrl, "https://owner-api.teslamotors.com/")
 
   plug(Tesla.Middleware.Headers, [
@@ -11,32 +24,89 @@ defmodule ExTesla.Api do
 
   plug(Tesla.Middleware.JSON)
 
-  defp login_with_oauth(oauth) do
+  defp get_token_with_password(oauth, email, password) do
     url = "/oauth/token"
 
     data = %{
       grant_type: "password",
       client_id: oauth["v1"]["id"],
       client_secret: oauth["v1"]["secret"],
-      email: Application.get_env(:ex_tesla, :email),
-      password: Application.get_env(:ex_tesla, :password)
+      email: email,
+      password: password
     }
 
     result = post(url, data)
 
     case result do
-      {:ok, %{status: 200, body: body}} -> {:ok, body}
-      {:ok, result} -> {:error, "Got status #{result.status}"}
-      {:error, msg} -> {:error, msg}
+      {:ok, %{status: 200, body: body}} ->
+        token = %Token{
+          access_token: body["access_token"],
+          token_type: body["token_type"],
+          expires_in: body["expires_in"],
+          refresh_token: body["refresh_token"],
+          created_at: body["created_at"]
+        }
+
+        {:ok, token}
+
+      {:ok, result} ->
+        {:error, "Got status #{result.status}"}
+
+      {:error, msg} ->
+        {:error, msg}
+    end
+  end
+
+  defp get_token_with_token(oauth, token) do
+    url = "/oauth/token"
+
+    data = %{
+      grant_type: "refresh_token",
+      client_id: oauth["v1"]["id"],
+      client_secret: oauth["v1"]["secret"],
+      refresh_token: token.refresh_token
+    }
+
+    result = post(url, data)
+
+    case result do
+      {:ok, %{status: 200, body: body}} ->
+        token = %Token{
+          access_token: body["access_token"],
+          token_type: body["token_type"],
+          expires_in: body["expires_in"],
+          refresh_token: body["refresh_token"],
+          created_at: body["created_at"]
+        }
+
+        {:ok, token}
+
+      {:ok, result} ->
+        {:error, "Got status #{result.status}"}
+
+      {:error, msg} ->
+        {:error, msg}
     end
   end
 
   @doc """
   Get a token required for Tesla's API.
   """
-  def get_token do
+  def get_token(email, password) do
     with {:ok, oauth} <- ExTesla.Oauth.get_oauth(),
-         {:ok, result} <- login_with_oauth(oauth) do
+         {:ok, result} <- get_token_with_password(oauth, email, password) do
+      {:ok, result}
+    else
+      {:error, msg} -> {:error, msg}
+    end
+  end
+
+  @doc """
+  Renew a token required for Tesla's API.
+  """
+  def renew_token(%Token{} = token) do
+    with {:ok, oauth} <- ExTesla.Oauth.get_oauth(),
+         {:ok, result} <- get_token_with_token(oauth, token) do
       {:ok, result}
     else
       {:error, msg} -> {:error, msg}
@@ -46,15 +116,13 @@ defmodule ExTesla.Api do
   @doc """
   Check token is still valid and renew if required.
   """
-  def check_token(nil), do: get_token()
-
-  def check_token(token) do
+  def check_token(%Token{} = token) do
     now = :os.system_time(:seconds)
-    expires = token["created_at"] + token["expires_in"] - 86400
+    expires = token.created_at + token.expires_in - 86400
 
     cond do
       now > expires ->
-        get_token()
+        renew_token(token)
 
       true ->
         {:ok, token}
@@ -64,9 +132,9 @@ defmodule ExTesla.Api do
   @doc """
   Get a HTTP client for the token.
   """
-  def client(token) do
+  def client(%Token{} = token) do
     Tesla.client([
-      {Tesla.Middleware.Headers, [{"authorization", "Bearer " <> token["access_token"]}]}
+      {Tesla.Middleware.Headers, [{"authorization", "Bearer " <> token.access_token}]}
     ])
   end
 
