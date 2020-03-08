@@ -1,5 +1,7 @@
 defmodule ExTesla.Api do
-  @moduledoc false
+  @moduledoc """
+  API for Tesla
+  """
   use Tesla
 
   defmodule Token do
@@ -24,6 +26,8 @@ defmodule ExTesla.Api do
 
   plug(Tesla.Middleware.JSON)
 
+  @spec get_token_with_password(map(), String.t(), String.t()) ::
+          {:ok, Token.t()} | {:error, String.t()}
   defp get_token_with_password(oauth, email, password) do
     url = "/oauth/token"
 
@@ -57,6 +61,7 @@ defmodule ExTesla.Api do
     end
   end
 
+  @spec get_token_with_token(map(), Token.t()) :: {:ok, Token.t()} | {:error, String.t()}
   defp get_token_with_token(oauth, token) do
     url = "/oauth/token"
 
@@ -92,6 +97,7 @@ defmodule ExTesla.Api do
   @doc """
   Get a token required for Tesla's API.
   """
+  @spec get_token(String.t(), String.t()) :: {:ok, Token.t()} | {:error, String.t()}
   def get_token(email, password) do
     with {:ok, oauth} <- ExTesla.Oauth.get_oauth(),
          {:ok, result} <- get_token_with_password(oauth, email, password) do
@@ -104,6 +110,7 @@ defmodule ExTesla.Api do
   @doc """
   Renew a token required for Tesla's API.
   """
+  @spec renew_token(Token.t()) :: {:ok, Token.t()} | {:error, String.t()}
   def renew_token(%Token{} = token) do
     with {:ok, oauth} <- ExTesla.Oauth.get_oauth(),
          {:ok, result} <- get_token_with_token(oauth, token) do
@@ -116,6 +123,7 @@ defmodule ExTesla.Api do
   @doc """
   Check token is still valid and renew if required.
   """
+  @spec check_token(Token.t()) :: {:ok, Token.t()} | {:error, String.t()}
   def check_token(%Token{} = token) do
     now = :os.system_time(:seconds)
     expires = token.created_at + token.expires_in - 86400
@@ -132,12 +140,14 @@ defmodule ExTesla.Api do
   @doc """
   Get a HTTP client for the token.
   """
+  @spec client(Token.t()) :: Tesla.Client.t()
   def client(%Token{} = token) do
     Tesla.client([
       {Tesla.Middleware.Headers, [{"authorization", "Bearer " <> token.access_token}]}
     ])
   end
 
+  @spec process_response(Tesla.Env.result()) :: {:ok, map()} | {:error, String.t()}
   defp process_response(result) do
     case result do
       {:ok, %{status: 200, body: %{"response" => response}}} -> {:ok, response}
@@ -150,6 +160,7 @@ defmodule ExTesla.Api do
   @doc """
   Get a list of all vehicles belonging to this account.
   """
+  @spec list_all_vehicles(Tesla.Client.t()) :: {:ok, map()} | {:error, String.t()}
   def list_all_vehicles(%Tesla.Client{} = client) do
     url = "/api/1/vehicles"
     get(client, url) |> process_response
@@ -158,6 +169,7 @@ defmodule ExTesla.Api do
   @doc """
   Get all data for a vehicle.
   """
+  @spec get_vehicle_data(Tesla.Client.t(), map()) :: {:ok, map()} | {:error, String.t()}
   def get_vehicle_data(%Tesla.Client{} = client, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data"
@@ -167,6 +179,7 @@ defmodule ExTesla.Api do
   @doc """
   Get the vehicle state for a vehicle.
   """
+  @spec get_vehicle_state(Tesla.Client.t(), map()) :: {:ok, map()} | {:error, String.t()}
   def get_vehicle_state(%Tesla.Client{} = client, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data_request/vehicle_state"
@@ -176,6 +189,7 @@ defmodule ExTesla.Api do
   @doc """
   Get the charge state for a vehicle.
   """
+  @spec get_charge_state(Tesla.Client.t(), map()) :: {:ok, map()} | {:error, String.t()}
   def get_charge_state(%Tesla.Client{} = client, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data_request/charge_state"
@@ -185,6 +199,7 @@ defmodule ExTesla.Api do
   @doc """
   Get the climate state for a vehicle.
   """
+  @spec get_climate_state(Tesla.Client.t(), map()) :: {:ok, map()} | {:error, String.t()}
   def get_climate_state(%Tesla.Client{} = client, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data_request/climate_state"
@@ -194,6 +209,7 @@ defmodule ExTesla.Api do
   @doc """
   Get the drive state for a vehicle.
   """
+  @spec get_drive_state(Tesla.Client.t(), map()) :: {:ok, map()} | {:error, String.t()}
   def get_drive_state(%Tesla.Client{} = client, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data_request/drive_state"
