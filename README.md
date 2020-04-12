@@ -11,7 +11,7 @@ by adding `ex_tesla` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:ex_tesla, "~> 0.0.1"}
+    {:ex_tesla, "~> 2.0.0"}
   ]
 end
 ```
@@ -24,22 +24,21 @@ be found at [https://hexdocs.pm/ex_tesla](https://hexdocs.pm/ex_tesla).
 
 ```elixir
 {:ok, token} = ExTesla.get_token(email, password)
-client = ExTesla.client(token)
-{:ok, result} = ExTesla.list_all_vehicles(client)
+{:ok, result} = ExTesla.list_all_vehicles(token)
 Enum.each(result, fn vehicle ->
     IO.puts(vehicle["display_name"])
     IO.inspect(vehicle)
 
-    {:ok, vehicle_state} = ExTesla.get_vehicle_state(client, vehicle)
+    {:ok, vehicle_state} = ExTesla.get_vehicle_state(token, vehicle)
     IO.inspect(vehicle_state)
 
-    {:ok, charge_state} = ExTesla.get_charge_state(client, vehicle)
+    {:ok, charge_state} = ExTesla.get_charge_state(token, vehicle)
     IO.inspect(charge_state)
 
-    {:ok, climate_state} = ExTesla.get_climate_state(client, vehicle)
+    {:ok, climate_state} = ExTesla.get_climate_state(token, vehicle)
     IO.inspect(climate_state)
 
-    {:ok, drive_state} = ExTesla.get_drive_state(client, vehicle)
+    {:ok, drive_state} = ExTesla.get_drive_state(token, vehicle)
     IO.inspect(drive_state)
 end)
 
@@ -47,8 +46,7 @@ end)
 
 # Some time elapsed, need to check token hasn't expired.
 {:ok, token} = ExTesla.check_token(token)
-client = ExTesla.client(token)
-{:ok, result} = ExTesla.list_all_vehicles(client)
+{:ok, result} = ExTesla.list_all_vehicles(token)
 ```
 
 ## Disclaimers

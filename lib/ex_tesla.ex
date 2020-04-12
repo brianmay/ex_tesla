@@ -20,11 +20,14 @@ defmodule ExTesla do
 
   defdelegate get_token(email, password), to: Api
   defdelegate check_token(token), to: Api
-  defdelegate client(token), to: Api
-  defdelegate list_all_vehicles(client), to: Api
-  defdelegate get_vehicle_data(client, vehicle), to: Api
-  defdelegate get_vehicle_state(client, vehicle), to: Api
-  defdelegate get_charge_state(client, vehicle), to: Api
-  defdelegate get_climate_state(client, vehicle), to: Api
-  defdelegate get_drive_state(client, vehicle), to: Api
+  defdelegate list_all_vehicles(token), to: Api
+  defdelegate get_vehicle_data(token, vehicle), to: Api
+  defdelegate get_vehicle_state(token, vehicle), to: Api
+  defdelegate get_charge_state(token, vehicle), to: Api
+  defdelegate get_climate_state(token, vehicle), to: Api
+  defdelegate get_drive_state(token, vehicle), to: Api
+  defdelegate wake_up(token, vehicle), to: Api
+  defdelegate charge_start(token, vehicle), to: Api
+  defdelegate charge_stop(token, vehicle), to: Api
+  defdelegate set_charge_limit(token, vehicle, percent), to: Api
 end

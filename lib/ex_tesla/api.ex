@@ -2,8 +2,6 @@ defmodule ExTesla.Api do
   @moduledoc """
   API for Tesla
   """
-  use Tesla
-
   defmodule Token do
     @type t :: %__MODULE__{
             access_token: String.t(),
@@ -17,14 +15,41 @@ defmodule ExTesla.Api do
     defstruct [:access_token, :token_type, :expires_in, :refresh_token, :created_at]
   end
 
-  plug(Tesla.Middleware.BaseUrl, "https://owner-api.teslamotors.com/")
+  defp make_url(url) do
+    "https://owner-api.teslamotors.com" <> url
+  end
 
-  plug(Tesla.Middleware.Headers, [
-    {"User-Agent",
-     "Mozilla/5.0 (Linux; Android 9.0.0; VS985 4G Build/LRX21Y; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/58.0.3029.83 Mobile Safari/537.36"}
-  ])
+  defp post(url, data) do
+    headers = %{
+      "User-Agent" =>
+        "Mozilla/5.0 (Linux; Android 9.0.0; VS985 4G Build/LRX21Y; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/58.0.3029.83 Mobile Safari/537.36"
+    }
 
-  plug(Tesla.Middleware.JSON)
+    url = make_url(url)
+    ExTesla.Http.post(url, data, headers: headers)
+  end
+
+  defp post(%Token{} = token, url, data) do
+    headers = %{
+      "User-Agent" =>
+        "Mozilla/5.0 (Linux; Android 9.0.0; VS985 4G Build/LRX21Y; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/58.0.3029.83 Mobile Safari/537.36",
+      "authorization" => "Bearer " <> token.access_token
+    }
+
+    url = make_url(url)
+    ExTesla.Http.post(url, data, headers: headers)
+  end
+
+  defp get(%Token{} = token, url) do
+    headers = %{
+      "User-Agent" =>
+        "Mozilla/5.0 (Linux; Android 9.0.0; VS985 4G Build/LRX21Y; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/58.0.3029.83 Mobile Safari/537.36",
+      "authorization" => "Bearer " <> token.access_token
+    }
+
+    url = make_url(url)
+    ExTesla.Http.get(url, headers: headers)
+  end
 
   @spec get_token_with_password(map(), String.t(), String.t()) ::
           {:ok, Token.t()} | {:error, String.t()}
@@ -42,7 +67,7 @@ defmodule ExTesla.Api do
     result = post(url, data)
 
     case result do
-      {:ok, %{status: 200, body: body}} ->
+      {:ok, body} ->
         token = %Token{
           access_token: body["access_token"],
           token_type: body["token_type"],
@@ -52,9 +77,6 @@ defmodule ExTesla.Api do
         }
 
         {:ok, token}
-
-      {:ok, result} ->
-        {:error, "Got status #{result.status}"}
 
       {:error, msg} ->
         {:error, msg}
@@ -75,7 +97,7 @@ defmodule ExTesla.Api do
     result = post(url, data)
 
     case result do
-      {:ok, %{status: 200, body: body}} ->
+      {:ok, body} ->
         token = %Token{
           access_token: body["access_token"],
           token_type: body["token_type"],
@@ -85,9 +107,6 @@ defmodule ExTesla.Api do
         }
 
         {:ok, token}
-
-      {:ok, result} ->
-        {:error, "Got status #{result.status}"}
 
       {:error, msg} ->
         {:error, msg}
@@ -137,82 +156,118 @@ defmodule ExTesla.Api do
     end
   end
 
-  @doc """
-  Get a HTTP client for the token.
-  """
-  @spec client(Token.t()) :: Tesla.Client.t()
-  def client(%Token{} = token) do
-    Tesla.client([
-      {Tesla.Middleware.Headers, [{"authorization", "Bearer " <> token.access_token}]}
-    ])
-  end
-
-  @spec process_response(Tesla.Env.result()) :: {:ok, map()} | {:error, String.t()}
-  defp process_response(result) do
-    case result do
-      {:ok, %{status: 200, body: %{"response" => response}}} -> {:ok, response}
-      {:ok, %{status: 200}} -> {:error, "Got no body in response"}
-      {:ok, result} -> {:error, "Got error status #{result.status}"}
-      err -> err
+  def parse_response(response) do
+    case response do
+      {:ok, response} -> {:error, response}
+      {:error, error} -> {:error, inspect(error)}
     end
   end
 
   @doc """
   Get a list of all vehicles belonging to this account.
   """
-  @spec list_all_vehicles(Tesla.Client.t()) :: {:ok, map()} | {:error, String.t()}
-  def list_all_vehicles(%Tesla.Client{} = client) do
+  @spec list_all_vehicles(Token.t()) :: {:ok, map()} | {:error, String.t()}
+  def list_all_vehicles(%Token{} = token) do
     url = "/api/1/vehicles"
-    get(client, url) |> process_response
+    get(token, url) |> parse_response()
   end
 
   @doc """
   Get all data for a vehicle.
   """
-  @spec get_vehicle_data(Tesla.Client.t(), map()) :: {:ok, map()} | {:error, String.t()}
-  def get_vehicle_data(%Tesla.Client{} = client, vehicle) do
+  @spec get_vehicle_data(Token.t(), map()) :: {:ok, map()} | {:error, String.t()}
+  def get_vehicle_data(%Token{} = token, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data"
-    get(client, url) |> process_response
+    get(token, url) |> parse_response()
   end
 
   @doc """
   Get the vehicle state for a vehicle.
   """
-  @spec get_vehicle_state(Tesla.Client.t(), map()) :: {:ok, map()} | {:error, String.t()}
-  def get_vehicle_state(%Tesla.Client{} = client, vehicle) do
+  @spec get_vehicle_state(Token.t(), map()) :: {:ok, map()} | {:error, String.t()}
+  def get_vehicle_state(%Token{} = token, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data_request/vehicle_state"
-    get(client, url) |> process_response
+    get(token, url) |> parse_response()
   end
 
   @doc """
   Get the charge state for a vehicle.
   """
-  @spec get_charge_state(Tesla.Client.t(), map()) :: {:ok, map()} | {:error, String.t()}
-  def get_charge_state(%Tesla.Client{} = client, vehicle) do
+  @spec get_charge_state(Token.t(), map()) :: {:ok, map()} | {:error, String.t()}
+  def get_charge_state(%Token{} = token, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data_request/charge_state"
-    get(client, url) |> process_response
+    get(token, url) |> parse_response()
   end
 
   @doc """
   Get the climate state for a vehicle.
   """
-  @spec get_climate_state(Tesla.Client.t(), map()) :: {:ok, map()} | {:error, String.t()}
-  def get_climate_state(%Tesla.Client{} = client, vehicle) do
+  @spec get_climate_state(Token.t(), map()) :: {:ok, map()} | {:error, String.t()}
+  def get_climate_state(%Token{} = token, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data_request/climate_state"
-    get(client, url) |> process_response
+    get(token, url) |> parse_response()
   end
 
   @doc """
   Get the drive state for a vehicle.
   """
-  @spec get_drive_state(Tesla.Client.t(), map()) :: {:ok, map()} | {:error, String.t()}
-  def get_drive_state(%Tesla.Client{} = client, vehicle) do
+  @spec get_drive_state(Token.t(), map()) :: {:ok, map()} | {:error, String.t()}
+  def get_drive_state(%Token{} = token, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data_request/drive_state"
-    get(client, url) |> process_response
+    get(token, url) |> parse_response()
+  end
+
+  def parse_command_response(response) do
+    case response do
+      {:ok, %{"response" => %{"result" => true}}} -> :ok
+      {:ok, %{"response" => %{"reason" => reason}}} -> {:error, reason}
+      {:error, error} -> {:error, inspect(error)}
+    end
+  end
+
+  @doc """
+  Wake up
+  """
+  @spec wake_up(Token.t(), map()) :: {:ok, :awake | :not_awake} | {:error, String.t()}
+  def wake_up(%Token{} = token, vehicle) do
+    vehicle_id = vehicle["id"]
+    url = "/api/1/vehicles/#{vehicle_id}/command/wake_up"
+    post(token, url, %{}) |> parse_command_response()
+  end
+
+  @doc """
+  Start charging
+  """
+  @spec charge_start(Token.t(), map()) :: :ok | {:error, String.t()}
+  def charge_start(%Token{} = token, vehicle) do
+    vehicle_id = vehicle["id"]
+    url = "/api/1/vehicles/#{vehicle_id}/command/charge_start"
+    post(token, url, %{}) |> parse_command_response()
+  end
+
+  @doc """
+  Start charging
+  """
+  @spec charge_stop(Token.t(), map()) :: :ok | {:error, String.t()}
+  def charge_stop(%Token{} = token, vehicle) do
+    vehicle_id = vehicle["id"]
+    url = "/api/1/vehicles/#{vehicle_id}/command/charge_stop"
+    post(token, url, %{}) |> parse_command_response()
+  end
+
+  @doc """
+  Set charge limit
+  """
+  @spec set_charge_limit(Token.t(), map(), integer()) :: :ok | {:error, String.t()}
+  def set_charge_limit(%Token{} = token, vehicle, percent) do
+    vehicle_id = vehicle["id"]
+    url = "/api/1/vehicles/#{vehicle_id}/command/set_charge_limit"
+    data = %{"percent" => percent}
+    post(token, url, data) |> parse_command_response()
   end
 end
