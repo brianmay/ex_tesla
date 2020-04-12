@@ -160,13 +160,21 @@ defmodule ExTesla.Api do
     end
   end
 
+  @spec parse_response({:ok, map()} | {:error, String.t()}) :: {:ok, map()} | {:error, String.t()}
+  def parse_response(response) do
+    case response do
+      {:ok, %{"response" => response}} -> {:ok, response}
+      {:error, error} -> {:error, error}
+    end
+  end
+
   @doc """
   Get a list of all vehicles belonging to this account.
   """
   @spec list_all_vehicles(Token.t()) :: {:ok, map()} | {:error, String.t()}
   def list_all_vehicles(%Token{} = token) do
     url = "/api/1/vehicles"
-    get(token, url)
+    get(token, url) |> parse_response()
   end
 
   @doc """
@@ -176,7 +184,7 @@ defmodule ExTesla.Api do
   def get_vehicle_data(%Token{} = token, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data"
-    get(token, url)
+    get(token, url) |> parse_response()
   end
 
   @doc """
@@ -186,7 +194,7 @@ defmodule ExTesla.Api do
   def get_vehicle_state(%Token{} = token, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data_request/vehicle_state"
-    get(token, url)
+    get(token, url) |> parse_response()
   end
 
   @doc """
@@ -196,7 +204,7 @@ defmodule ExTesla.Api do
   def get_charge_state(%Token{} = token, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data_request/charge_state"
-    get(token, url)
+    get(token, url) |> parse_response()
   end
 
   @doc """
@@ -206,7 +214,7 @@ defmodule ExTesla.Api do
   def get_climate_state(%Token{} = token, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data_request/climate_state"
-    get(token, url)
+    get(token, url) |> parse_response()
   end
 
   @doc """
@@ -216,7 +224,7 @@ defmodule ExTesla.Api do
   def get_drive_state(%Token{} = token, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data_request/drive_state"
-    get(token, url)
+    get(token, url) |> parse_response()
   end
 
   @spec parse_command_response({:ok, map()} | {:error, String.t()}) :: :ok | {:error, String.t()}
