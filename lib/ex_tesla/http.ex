@@ -17,7 +17,7 @@ defmodule ExTesla.Http do
          {:ok, out_data} <- Jason.decode(response.body) do
       {:ok, out_data}
     else
-      {:error, error} -> {:error, error}
+      {:error, error} -> {:error, "http get error #{inspect(error)}"}
     end
   end
 
@@ -35,7 +35,7 @@ defmodule ExTesla.Http do
          {:ok, out_data} <- Jason.decode(response.body) do
       {:ok, out_data}
     else
-      {:error, error} -> {:error, error}
+      {:error, error} -> {:error, "http post error #{inspect(error)}"}
     end
   end
 end

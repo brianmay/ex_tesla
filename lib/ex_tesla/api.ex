@@ -78,8 +78,8 @@ defmodule ExTesla.Api do
 
         {:ok, token}
 
-      {:error, msg} ->
-        {:error, msg}
+      {:error, error} ->
+        {:error, error}
     end
   end
 
@@ -108,8 +108,8 @@ defmodule ExTesla.Api do
 
         {:ok, token}
 
-      {:error, msg} ->
-        {:error, msg}
+      {:error, error} ->
+        {:error, error}
     end
   end
 
@@ -122,7 +122,7 @@ defmodule ExTesla.Api do
          {:ok, result} <- get_token_with_password(oauth, email, password) do
       {:ok, result}
     else
-      {:error, msg} -> {:error, msg}
+      {:error, error} -> {:error, error}
     end
   end
 
@@ -135,7 +135,7 @@ defmodule ExTesla.Api do
          {:ok, result} <- get_token_with_token(oauth, token) do
       {:ok, result}
     else
-      {:error, msg} -> {:error, msg}
+      {:error, error} -> {:error, error}
     end
   end
 
@@ -156,20 +156,13 @@ defmodule ExTesla.Api do
     end
   end
 
-  def parse_response(response) do
-    case response do
-      {:ok, response} -> {:error, response}
-      {:error, error} -> {:error, inspect(error)}
-    end
-  end
-
   @doc """
   Get a list of all vehicles belonging to this account.
   """
   @spec list_all_vehicles(Token.t()) :: {:ok, map()} | {:error, String.t()}
   def list_all_vehicles(%Token{} = token) do
     url = "/api/1/vehicles"
-    get(token, url) |> parse_response()
+    get(token, url)
   end
 
   @doc """
@@ -179,7 +172,7 @@ defmodule ExTesla.Api do
   def get_vehicle_data(%Token{} = token, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data"
-    get(token, url) |> parse_response()
+    get(token, url)
   end
 
   @doc """
@@ -189,7 +182,7 @@ defmodule ExTesla.Api do
   def get_vehicle_state(%Token{} = token, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data_request/vehicle_state"
-    get(token, url) |> parse_response()
+    get(token, url)
   end
 
   @doc """
@@ -199,7 +192,7 @@ defmodule ExTesla.Api do
   def get_charge_state(%Token{} = token, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data_request/charge_state"
-    get(token, url) |> parse_response()
+    get(token, url)
   end
 
   @doc """
@@ -209,7 +202,7 @@ defmodule ExTesla.Api do
   def get_climate_state(%Token{} = token, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data_request/climate_state"
-    get(token, url) |> parse_response()
+    get(token, url)
   end
 
   @doc """
@@ -219,14 +212,14 @@ defmodule ExTesla.Api do
   def get_drive_state(%Token{} = token, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/data_request/drive_state"
-    get(token, url) |> parse_response()
+    get(token, url)
   end
 
   def parse_command_response(response) do
     case response do
       {:ok, %{"response" => %{"result" => true}}} -> :ok
       {:ok, %{"response" => %{"reason" => reason}}} -> {:error, reason}
-      {:error, error} -> {:error, inspect(error)}
+      {:error, error} -> {:error, error}
     end
   end
 
