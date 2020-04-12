@@ -15,10 +15,12 @@ defmodule ExTesla.Api do
     defstruct [:access_token, :token_type, :expires_in, :refresh_token, :created_at]
   end
 
+  @spec make_url(String.t()) :: String.t()
   defp make_url(url) do
     "https://owner-api.teslamotors.com" <> url
   end
 
+  @spec post(String.t(), map()) :: {:ok, map()} | {:error, String.t()}
   defp post(url, data) do
     headers = %{
       "User-Agent" =>
@@ -29,6 +31,7 @@ defmodule ExTesla.Api do
     ExTesla.Http.post(url, data, headers: headers)
   end
 
+  @spec post(Token.t(), String.t(), map()) :: {:ok, map()} | {:error, String.t()}
   defp post(%Token{} = token, url, data) do
     headers = %{
       "User-Agent" =>
@@ -40,6 +43,7 @@ defmodule ExTesla.Api do
     ExTesla.Http.post(url, data, headers: headers)
   end
 
+  @spec get(Token.t(), String.t()) :: {:ok, map()} | {:error, String.t()}
   defp get(%Token{} = token, url) do
     headers = %{
       "User-Agent" =>
@@ -215,6 +219,7 @@ defmodule ExTesla.Api do
     get(token, url)
   end
 
+  @spec parse_command_response({:ok, map()} | {:error, String.t()}) :: :ok | {:error, String.t()}
   def parse_command_response(response) do
     case response do
       {:ok, %{"response" => %{"result" => true}}} -> :ok
@@ -226,7 +231,7 @@ defmodule ExTesla.Api do
   @doc """
   Wake up
   """
-  @spec wake_up(Token.t(), map()) :: {:ok, :awake | :not_awake} | {:error, String.t()}
+  @spec wake_up(Token.t(), map()) :: :ok | {:error, String.t()}
   def wake_up(%Token{} = token, vehicle) do
     vehicle_id = vehicle["id"]
     url = "/api/1/vehicles/#{vehicle_id}/command/wake_up"

@@ -8,6 +8,7 @@ defmodule ExTesla.Http do
     end
   end
 
+  @spec get(String.t(), Keyword.t()) :: {:ok, map()} | {:error, String.t()}
   def get(url, opts \\ []) do
     {headers, opts} = Keyword.pop(opts, :headers, %{})
     headers = Enum.to_list(headers)
@@ -21,6 +22,7 @@ defmodule ExTesla.Http do
     end
   end
 
+  @spec post(String.t(), map(), Keyword.t()) :: {:ok, map()} | {:error, String.t()}
   def post(url, in_data, opts \\ []) do
     default_headers = %{
       "Content-Type" => "application/json"
