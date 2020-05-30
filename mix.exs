@@ -14,7 +14,8 @@ defmodule ExTesla.MixProject do
         main: "readme",
         # logo: "path/to/logo.png",
         extras: ["README.md"]
-      ]
+      ],
+      dialyzer: dialyzer()
     ]
   end
 
@@ -46,7 +47,15 @@ defmodule ExTesla.MixProject do
       {:mojito, "~> 0.6.1"},
       {:jason, ">= 1.0.0"},
       {:ex_doc, "~> 0.21.0", only: :dev, runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev], runtime: false}
+      {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.4", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  defp dialyzer do
+    [
+      plt_core_path: "priv/plts",
+      plt_file: {:no_warn, "priv/plts/dialyzer.plt"}
     ]
   end
 end

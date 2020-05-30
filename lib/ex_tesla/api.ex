@@ -3,6 +3,7 @@ defmodule ExTesla.Api do
   API for Tesla
   """
   defmodule Token do
+    @moduledoc "Tesla Token"
     @type t :: %__MODULE__{
             access_token: String.t(),
             token_type: String.t(),
@@ -149,14 +150,12 @@ defmodule ExTesla.Api do
   @spec check_token(Token.t()) :: {:ok, Token.t()} | {:error, String.t()}
   def check_token(%Token{} = token) do
     now = :os.system_time(:seconds)
-    expires = token.created_at + token.expires_in - 86400
+    expires = token.created_at + token.expires_in - 86_400
 
-    cond do
-      now > expires ->
-        renew_token(token)
-
-      true ->
-        {:ok, token}
+    if now > expires do
+      renew_token(token)
+    else
+      {:ok, token}
     end
   end
 
