@@ -44,7 +44,7 @@ defmodule ExTesla.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:mojito, "~> 0.6.1"},
+      {:mojito, "~> 0.7.0"},
       {:jason, ">= 1.0.0"},
       {:ex_doc, "~> 0.22.1", only: :dev, runtime: false},
       {:dialyxir, "~> 1.0.0-rc.4", only: [:dev, :test], runtime: false},
