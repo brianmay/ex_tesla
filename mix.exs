@@ -4,7 +4,7 @@ defmodule ExTesla.MixProject do
   def project do
     [
       app: :ex_tesla,
-      version: "2.0.4",
+      version: "2.0.5",
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       description: description(),

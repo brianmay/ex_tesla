@@ -13,7 +13,7 @@ defmodule ExTesla.Http do
     {headers, opts} = Keyword.pop(opts, :headers, %{})
     headers = Enum.to_list(headers)
 
-    opts = Keyword.put_new(opts, :timeout, 30_000)
+    opts = Keyword.put_new(opts, :timeout, 60_000)
 
     with {:ok, response} <- Mojito.request(:get, url, headers, "", opts),
          :ok <- check_response(response),
@@ -33,7 +33,7 @@ defmodule ExTesla.Http do
     {headers, opts} = Keyword.pop(opts, :headers, %{})
     headers = Map.merge(default_headers, headers) |> Map.to_list()
 
-    opts = Keyword.put_new(opts, :timeout, 30_000)
+    opts = Keyword.put_new(opts, :timeout, 60_000)
 
     with {:ok, body} <- Jason.encode(in_data),
          {:ok, response} <- Mojito.request(:post, url, headers, body, opts),
