@@ -46,7 +46,7 @@ defmodule ExTesla.MixProject do
     [
       {:mojito, "~> 0.7.0"},
       {:jason, ">= 1.0.0"},
-      {:ex_doc, "~> 0.24.0", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.25.0", only: :dev, runtime: false},
       {:dialyxir, "~> 1.1.0", only: [:dev, :test], runtime: false},
       {:credo, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
